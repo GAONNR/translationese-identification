@@ -34,12 +34,21 @@ pip install -r requirements.txt
 
 - [supervised-classifier.py](./supervised-classifier.py)
 
-```bash
-python supervised-classifier setup # run in first execution
-python supervised-classifier
-```
+  ```bash
+  python supervised-classifier setup # run in first execution
+  python supervised-classifier
+  ```
 
-## 5. References
+## 5. Results(TBU)
+
+- Number of Tokens / Sentences
+
+  | Data         |    Tokens | Sentences | FW Ratio |
+  | ------------ | --------: | --------: | -------: |
+  | Natives      | 3,051,488 |   116,341 | 0.422852 |
+  | Translations | 4,032,519 |   132,900 | 0.415707 |
+
+## 6. References
 
 - Information Density and Quality Estimation Features as Translationese Indicators for Human Translation Classification (2016)
   Raphaël Rubino, Ekaterina Lapshinova-Koltunski, Josef van Genabith. HLT-NAACL 2016
