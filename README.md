@@ -37,7 +37,7 @@ pip install -r requirements.txt
 - [supervised-classifier.py](./supervised-classifier.py)
 
   ```bash
-  python supervised-classifier.py
+  python supervised-classifier.py europarl chunknize
   ```
 
 ## 6. Results(TBU)

@@ -1,3 +1,7 @@
+from sklearn import svm, model_selection
+from sklearn.metrics import recall_score, precision_score, f1_score
+from functionwords import functionWords
+import random
 import spacy
 import sys
 import csv
@@ -10,7 +14,7 @@ europarlInfo = {
 
 def calcStopWords(toks, tokDict):
     for tok in toks:
-        if not tok.is_stop:
+        if tok.text not in functionWords:
             continue
 
         if tok.text in tokDict:
@@ -98,8 +102,127 @@ def chunkEuroparl(nlp):
     return
 
 
+def csvToTotalChunks(totalChunks, csvReader, val, num):
+    cnt = 0
+    for no, chunk, chunkNum in csvReader:
+        totalChunks.append([chunk.lower(), val, chunkNum])
+        cnt += 1
+
+        if cnt >= num:
+            break
+    return
+
+
+def getStopWordsStat(nlp, chunk, chunkNum):
+    tokenizedChunk = nlp(chunk)
+    stopwordsStat = dict()
+
+    for token in tokenizedChunk:
+        if token.is_stop:
+            if token.text in stopwordsStat:
+                stopwordsStat[token.text] += 1
+            else:
+                stopwordsStat[token.text] = 1
+
+    for key in stopwordsStat.keys():
+        stopwordsStat[key] /= int(chunkNum)
+
+    return stopwordsStat
+
+
+def getFeaturesOfEuroparlSVM(nlp):
+    fEnChunks = open('chunks/europarl/en.csv', 'r')
+    fFrChunks = open('chunks/europarl/fr.csv', 'r')
+
+    enReader = csv.reader(fEnChunks)
+    frReader = csv.reader(fFrChunks)
+
+    totalChunks = list()
+
+    csvToTotalChunks(totalChunks, enReader, False, 1500)
+    csvToTotalChunks(totalChunks, frReader, True, 1500)
+    random.shuffle(totalChunks)
+
+    print('Shuffled Chunks')
+
+    fEnChunks.close()
+    fFrChunks.close()
+
+    stopwordsSet = set()
+    stopwordsStats = list()
+    for chunk, val, chunkNum in totalChunks:
+        stopwordsStat = getStopWordsStat(nlp, chunk, chunkNum)
+        stopwordsStats.append([stopwordsStat, val])
+        stopwordsSet.update(list(stopwordsStat.keys()))
+    stopwordsList = list(stopwordsSet)
+
+    print('Marking Function Words Complete')
+
+    X = [[0 for _ in range(len(stopwordsList))]
+         for _ in range(len(totalChunks))]
+    y = [0 for _ in range(len(totalChunks))]
+
+    print('Writing to csv File....')
+
+    for i in range(len(totalChunks)):
+        y[i] = 1 if stopwordsStats[i][1] else 0
+        for j in range(len(stopwordsList)):
+            stopwordsStat = stopwordsStats[i][0]
+            if stopwordsList[j] in stopwordsStat:
+                X[i][j] = stopwordsStat[stopwordsList[j]]
+
+    fEuroparlFeatures = open('features/europarl/features.csv', 'w')
+    featureWriter = csv.writer(fEuroparlFeatures)
+    featureWriter.writerow(stopwordsList + ['val'])
+    for i in range(len(totalChunks)):
+        featureWriter.writerow(X[i] + [y[i]])
+    fEuroparlFeatures.close()
+
+    return
+
+
+def trainEuroparlSVM(nlp):
+    fFeatures = open('features/europarl/features.csv', 'r')
+    featuresReader = csv.reader(fFeatures)
+
+    column = True
+    featuresNum = 0
+    X = list()
+    y = list()
+    for line in featuresReader:
+        if column:
+            featuresNum = len(line) - 1
+            column = False
+            continue
+        X.append(list(map(lambda x: float(x), line[:featuresNum])))
+        y.append(int(line[-1]))
+
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(
+        X, y, test_size=0.2)
+
+    for kernel in ['linear']:
+        print('Training by %s kernel' % kernel)
+        clf = svm.SVC(kernel=kernel, C=100000)
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X_test)
+        accuracy = clf.score(X_test, y_test)
+        recall = recall_score(y_test, y_pred, average="macro")
+        precision = precision_score(y_test, y_pred, average="macro")
+        f1 = f1_score(y_test, y_pred, average="macro")
+        print(kernel, 'accuracy:', accuracy)
+        print(kernel, 'recall:', recall)
+        print(kernel, 'precision:', precision)
+        print(kernel, 'f1_score:', f1)
+
+
 if __name__ == '__main__':
     nlp = spacy.load('en')
 
     if 'europarl' in sys.argv:
-        chunkEuroparl(nlp)
+        if 'chunknize' in sys.argv:
+            chunkEuroparl(nlp)
+        if 'svm' in sys.argv:
+            if 'features' in sys.argv:
+                getFeaturesOfEuroparlSVM(nlp)
+            if 'train' in sys.argv:
+                trainEuroparlSVM(nlp)

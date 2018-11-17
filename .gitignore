@@ -1,5 +1,7 @@
+features/*
 corpus/*
 chunks/*
 venv/*
+*.pyc
 .vscode
 .DS_Store
