@@ -1,96 +1,105 @@
-import nltk
+import spacy
 import sys
+import csv
 
-stops = None
+europarlInfo = {
+    'dat': 'corpus/europarl-v7.EN-FR/europarl-v7.fr-en.dat',
+    'tok': 'corpus/europarl-v7.EN-FR/europarl-v7.fr-en.en.aligned.tok'
+}
 
-def pretty_print_dict(mydict):
-    print('{')
-    for key in mydict.keys():
-        if mydict[key] > 0:
-            print(' \"' + key + '\":', mydict[key], ',')
-    print('}')
 
-def num_of_FWs(tokens, stops):
-    FWNum = 0
-    FWDict = dict()
-    for token in tokens:
-        if token in stops:
-            FWNum += 1
+def calcStopWords(toks, tokDict):
+    for tok in toks:
+        if not tok.is_stop:
+            continue
 
-            if token in FWDict:
-                FWDict[token] += 1
-            else:
-                FWDict[token] = 0
+        if tok.text in tokDict:
+            tokDict[tok.text] += 1
+        else:
+            tokDict[tok.text] = 1
 
-    return FWNum, FWDict
 
-def tokenizer():
-    nativeTKNum = 0
-    nativeFWNum = 0
-    nativeLNNum = 0
-    nativeFWDict = dict()
-    for word in stops:
-        nativeFWDict[word] = 0
+def chunkEuroparl(nlp):
+    enLines = 0
+    enToks = 0
+    tmpEnChunk = ''
+    tmpEnToks = 0
+    tmpEnIdx = 0
+    enDict = dict()
+    fEnChunks = open('chunks/europarl/en.csv', 'w')
+    enWriter = csv.writer(fEnChunks)
 
-    with open('corpus/ENNTT/natives.tok', 'r') as fNatives:
-        for line in fNatives:
-            lineTokens = nltk.word_tokenize(line)
-            nativeTKNum += len(lineTokens)
-            
-            tmpTuple = num_of_FWs(lineTokens, stops)
-            nativeFWNum += tmpTuple[0]
-            for key in tmpTuple[1].keys():
-                nativeFWDict[key] += tmpTuple[1][key]
+    frLines = 0
+    frToks = 0
+    tmpFrChunk = ''
+    tmpFrToks = 0
+    tmpFrIdx = 0
+    frDict = dict()
+    fFrChunks = open('chunks/europarl/fr.csv', 'w')
+    frWriter = csv.writer(fFrChunks)
 
-            nativeLNNum += 1
-        
-        print('=== Natives ===')
-        print('Number of tokens:', nativeTKNum)
-        print('Ratio of FWs:', nativeFWNum / nativeTKNum)
-        print('Number of sentences:', nativeLNNum)
-        print('Dict of FW freq:')
-        pretty_print_dict(nativeFWDict)
+    with open(europarlInfo['dat'], 'r') as corpusDat, \
+            open(europarlInfo['tok'], 'r') as corpusTok:
+        for datLine, tokLine in zip(corpusDat, corpusTok):
+            if '\"EN\"' in datLine:
+                lineToks = nlp(tokLine)
+                enLines += 1
+                enToks += len(lineToks)
+                calcStopWords(lineToks, enDict)
 
-    translationTKNum = 0
-    translationFWNum = 0
-    translationLNNum = 0
-    translationFWDict = dict()
-    for word in stops:
-        translationFWDict[word] = 0
+                tmpEnChunk += tokLine
+                tmpEnToks += len(lineToks)
 
-    with open('corpus/ENNTT/translations.tok', 'r') as fTranslations, \
-         open('corpus/ENNTT/translations.dat', 'r') as fTransData: 
-        for line, dat in zip(fTranslations, fTransData):
-            if 'LANGUAGE=\"FR\"' in dat: 
-                lineTokens = nltk.word_tokenize(line)
-                translationTKNum += len(lineTokens)
+                if tmpEnToks >= 2000:
+                    enWriter.writerow([tmpEnIdx, tmpEnChunk, tmpEnToks])
+                    tmpEnChunk = ''
+                    tmpEnToks = 0
+                    tmpEnIdx += 1
 
-                tmpTuple = num_of_FWs(lineTokens, stops)
-                translationFWNum += tmpTuple[0]
-                for key in tmpTuple[1].keys():
-                    translationFWDict[key] += tmpTuple[1][key]
+                    if tmpEnIdx % 100 == 0:
+                        print('En chunk number %d has written' % tmpEnIdx)
 
-                translationLNNum += 1
+            elif '\"FR\"' in datLine:
+                lineToks = nlp(tokLine)
+                frLines += 1
+                frToks += len(lineToks)
+                calcStopWords(lineToks, frDict)
 
-        print('=== Translations ===')
-        print('Number of tokens:', translationTKNum)
-        print('Ratio of FWs:', translationFWNum / translationTKNum)
-        print('Number of sentences:', translationLNNum)
-        print('Dict of FW freq:')
-        pretty_print_dict(translationFWDict)
-    
-    return (None, None)
+                tmpFrChunk += tokLine
+                tmpFrToks += len(lineToks)
+
+                if tmpFrToks >= 2000:
+                    frWriter.writerow([tmpFrIdx, tmpFrChunk, tmpFrToks])
+                    tmpFrChunk = ''
+                    tmpFrToks = 0
+                    tmpFrIdx += 1
+
+                    if tmpFrIdx % 100 == 0:
+                        print('Fr chunk number %d has written' % tmpFrIdx)
+
+        enWriter.writerow([tmpEnIdx, tmpEnChunk, tmpEnToks])
+        frWriter.writerow([tmpFrIdx, tmpFrChunk, tmpFrToks])
+
+        print('Europarl', 'English Lines:', enLines)
+        print('Europarl', 'English Tokens:', enToks)
+        print('Europarl', 'French Lines:', frLines)
+        print('Europarl', 'French Tokens:', frToks)
+
+        print('==========')
+        print('English Stopwords Dict')
+        print(enToks)
+
+        print('==========')
+        print('French Stopwords Dict')
+        print(frToks)
+
+    fEnChunks.close()
+    fFrChunks.close()
+    return
+
 
 if __name__ == '__main__':
-    RUN = True
-    if len(sys.argv) > 1:
-        if 'setup' in sys.argv:
-            nltk.download('punkt')
-            nltk.download('stopwords')
-            RUN = False
-    
-    if RUN:
-        from nltk.corpus import stopwords
-        stops = stopwords.words('english')
+    nlp = spacy.load('en')
 
-        nativeTokens, traslationTokens = tokenizer()
+    if 'europarl' in sys.argv:
+        chunkEuroparl(nlp)

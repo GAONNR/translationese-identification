@@ -20,13 +20,15 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
 
 - Python 3.6
 - virtualenv
-- [ENNTT](https://github.com/senisioi/enntt-release/releases/latest) (in `./corpus/`)
+- [Parallel Corpus](http://cl.haifa.ac.il/projects/translationese/index.shtml) (in `./corpus/`)
 
-## 4. Usage
+## 5. Usage
 
 ```bash
 virtualenv venv
 source venv/bin/activate
+pip install spacy
+python -m spacy download en
 pip install -r requirements.txt
 ```
 
@@ -35,48 +37,48 @@ pip install -r requirements.txt
 - [supervised-classifier.py](./supervised-classifier.py)
 
   ```bash
-  python supervised-classifier setup # run in first execution
-  python supervised-classifier
+  python supervised-classifier.py
   ```
 
-## 5. Results(TBU)
+## 6. Results(TBU)
 
 - Number of Tokens / Sentences
 
-  | Data         |    Tokens | Sentences | FW Ratio |
-  | ------------ | --------: | --------: | -------: |
-  | Natives      | 3,051,488 |   116,341 | 0.422852 |
-  | Translations | 4,032,519 |   132,900 | 0.415707 |
+  | Data          | Sentences |    Tokens | Chunks |
+  | ------------- | --------: | --------: | -----: |
+  | Europarl - EN |   217,421 | 5,979,208 |   2964 |
+  | Europarl - FR |   130,051 | 4,037,457 |   1999 |
 
-## 6. References
+## 7. References
 
-- Information Density and Quality Estimation Features as Translationese Indicators for Human Translation Classification (2016)
+- Information Density and Quality Estimation Features as Translationese Indicators for Human Translation Classification (2016)  
   Raphaël Rubino, Ekaterina Lapshinova-Koltunski, Josef van Genabith. HLT-NAACL 2016
 
-- Unsupervised Identification of Translationese (2015)
+- Unsupervised Identification of Translationese (2015)  
   Ella Rabinovich, Shuly Wintner
   Transactions of the Association for Computational Linguistics, 3:419–432, 2015. ISSN 2307-387X
 
 - Interpretese vs. Translationese:
-  The Uniqueness of Human Strategies in Simultaneous Interpretation (2016)
+  The Uniqueness of Human Strategies in Simultaneous Interpretation (2016)  
   He et al
   Proceedings of the 2016 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies
 
-- Translationese and its dialects (2011)
+- Translationese and its dialects (2011)  
   Moshe Koppel and Noam Ordan, In Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies, pages 1318–1326, Portland, Oregon, USA, June 2011. Association for Computational Linguistics.
 
 - Statistical Machine Translation
-  with Automatic Identification of Translationese (2015)
+  with Automatic Identification of Translationese (2015)  
   Naama Twitto, Noam Ordan, Shuly Wintner
   Proceedings of the Tenth Workshop on Statistical Machine Translation
 
-- Identification of Translationese: A Machine Learning Approach (2010)
+- Identification of Translationese: A Machine Learning Approach (2010)  
   Iustina Ilisei, Diana Inkpen, Gloria Corpas Pastor, Ruslan Mitkov
   CICLing 2010: Computational Linguistics and Intelligent Text Processing
 
-- A New Approach to the Study of Translationese: Machine-learning the Difference between Original and Translated Text (2006)
+- A New Approach to the Study of Translationese: Machine-learning the Difference between Original and Translated Text (2006)  
   Marco Baroni and Silvia Bernardini
   Literary and Linguistic Computing, 21(3): 259–274, September 2006
 
-- A Corpus of Native, Non-native and Translated Texts (2016)
-  Sergiu Nisioi and Ella Rabinovich and Liviu P. Dinu and Shuly Wintner, Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016)
+- A Parallel Corpus of Translationese (2016)  
+  Ella Rabinovich, Shuly Wintner and Ofek Luis Lewinsohn
+  Proceedings of the 17th International Confernece on Computational Linguistics and Intelligent Text Processing (CICLing-2016), pages 140-155, Konya, Turkey, April 2016.
