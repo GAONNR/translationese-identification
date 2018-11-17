@@ -12,9 +12,9 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
 
 ## 3. Sources
 
-- [Europarl corpus of native, non-native and translated texts - ENNTT](https://github.com/senisioi/enntt-release/releases/latest)
+- Functional words list from _On the features of translationese_, _Volansky et al_, 2015. Appendix A.4
 
-- 기타 corpus는 주로 [이 링크](http://cl.haifa.ac.il/projects/translationese/index.shtml)에서 찾을 예정입니다.
+- [Europarl English-French Parallel Corpus](http://cl.haifa.ac.il/projects/translationese/index.shtml)
 
 ## 4. Requirements
 
@@ -49,6 +49,11 @@ pip install -r requirements.txt
   | Europarl - EN |   217,421 | 5,979,208 |   2964 |
   | Europarl - FR |   130,051 | 4,037,457 |   1999 |
 
+- Accuracy (SVM: C = 10^5)
+  | Corpus | SVM | KMeans | NN |
+  | ------ | --: | -----: | -: |
+  | Europarl | 95% | TBU | TBU
+
 ## 7. References
 
 - Information Density and Quality Estimation Features as Translationese Indicators for Human Translation Classification (2016)  
@@ -82,3 +87,7 @@ pip install -r requirements.txt
 - A Parallel Corpus of Translationese (2016)  
   Ella Rabinovich, Shuly Wintner and Ofek Luis Lewinsohn
   Proceedings of the 17th International Confernece on Computational Linguistics and Intelligent Text Processing (CICLing-2016), pages 140-155, Konya, Turkey, April 2016.
+
+- On the Features of Translationese (2015)  
+  V Volansky, N Ordan, S Wintner  
+  Literary and Linguistic Computing, Volume 30, Issue 1, 1 April 2015, Pages 98–118,
