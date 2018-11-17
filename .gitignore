@@ -1,4 +1,5 @@
 corpus/*
+chunks/*
 venv/*
 .vscode
 .DS_Store
