@@ -87,11 +87,11 @@ def chunkEuroparl(nlp):
 
         print('==========')
         print('English Stopwords Dict')
-        print(enToks)
+        print(enDict)
 
         print('==========')
         print('French Stopwords Dict')
-        print(frToks)
+        print(frDict)
 
     fEnChunks.close()
     fFrChunks.close()
