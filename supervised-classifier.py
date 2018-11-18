@@ -1,6 +1,5 @@
 from sklearn import svm, model_selection
 from sklearn.metrics import recall_score, precision_score, f1_score
-import spacy
 import sys
 import csv
 
