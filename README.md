@@ -63,9 +63,17 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
   | Europarl - FR |   130,051 | 4,037,457 |   1999 |
 
 - Accuracy (SVM: C = 10^5)
-  | Corpus | SVM | KMeans | NN |
-  | ------ | --: | -----: | -: |
-  | Europarl | 95% | TBU | TBU
+
+  | Corpus     | SVM | KMeans |  NN |
+  | ---------- | --: | -----: | --: |
+  | Europarl   | 95% |    TBU | TBU |
+  | Literature | 96% |    TBU | TBU |
+
+- Cross Accuracy
+
+  | Corpus 1 | Corpus 2   | SVM | KMeans |  NN |
+  | -------- | ---------- | --: | -----: | --: |
+  | Europarl | Literature | 56% |    TBU | TBU |
 
 ## 7. References
 
