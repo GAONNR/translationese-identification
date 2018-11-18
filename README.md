@@ -24,20 +24,33 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
 
 ## 5. Usage
 
-```bash
-virtualenv venv
-source venv/bin/activate
-pip install spacy
-python -m spacy download en
-pip install -r requirements.txt
-```
-
-### Without deep learning
-
-- [supervised-classifier.py](./supervised-classifier.py)
+- Setup
 
   ```bash
-  python supervised-classifier.py europarl chunknize
+  virtualenv venv
+  source venv/bin/activate
+  pip install spacy
+  python -m spacy download en
+  pip install -r requirements.txt
+  ```
+
+- Get chunks & features of the corpus
+
+  ```bash
+  python chunknizer.py <corpusname>
+  ```
+
+- Get only features of the corpus
+
+  ```bash
+  python chunknizer.py <corpusname> features
+  ```
+
+- [supervised-classifier.py](./supervised-classifier.py) (Using SVM)
+
+  ```bash
+  python supervised-classifier.py <corpusname>
+  python supervised-classifier.py <corpusname != europarl> cross # test between input corpus & europarl
   ```
 
 ## 6. Results(TBU)
