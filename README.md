@@ -1,6 +1,6 @@
-# Graduation Research: Unsupervised Translationese Identification via Deep Learning
+# Graduation Research: Translationese Identification via Deep Learning
 
-2018 Fall, 졸업 연구: 딥 러닝을 활용한 번역체(Translationese)의 Unsupervised Identification
+2018 Fall, 졸업 연구: 딥 러닝을 활용한 번역체(Translationese)의 Identification
 
 ## 1. 번역체(Translationese)란?
 
