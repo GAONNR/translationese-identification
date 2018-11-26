@@ -46,11 +46,11 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
   python chunknizer.py <corpusname> features
   ```
 
-- [supervised-classifier.py](./supervised-classifier.py) (Using SVM)
+- [supervised_classifier.py](./supervised_classifier.py) (Using SVM)
 
   ```bash
-  python supervised-classifier.py <corpusname>
-  python supervised-classifier.py <corpusname != europarl> cross # test between input corpus & europarl
+  python supervised_classifier.py <corpusname>
+  python supervised_classifier.py <corpusname != europarl> cross # test between input corpus & europarl
   ```
 
 ## 6. Results(TBU)

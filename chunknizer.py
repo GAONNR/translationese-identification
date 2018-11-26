@@ -1,4 +1,4 @@
-from functionwords import functionWords
+from function_words import function_words as functionWords
 import random
 import spacy
 import sys
@@ -232,6 +232,26 @@ def getFeatures(nlp, corpusName):
         featureWriter.writerow(X[i] + [y[i]])
     fFeatures.close()
 
+    return X, y
+
+
+def getXy(corpusName):
+    fFeatures = open('features/%s/features.csv' % corpusName, 'r')
+    featuresReader = csv.reader(fFeatures)
+
+    column = True
+    featuresNum = 0
+    X = list()
+    y = list()
+    for line in featuresReader:
+        if column:
+            featuresNum = len(line) - 1
+            column = False
+            continue
+        X.append(list(map(lambda x: float(x), line[:featuresNum])))
+        y.append(int(line[-1]))
+
+    fFeatures.close()
     return X, y
 
 
