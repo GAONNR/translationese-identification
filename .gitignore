@@ -1,6 +1,7 @@
 features/*
 corpus/*
 chunks/*
+paper/*
 venv/*
 *.pyc
 .vscode
