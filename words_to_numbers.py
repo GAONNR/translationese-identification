@@ -1,6 +1,8 @@
+from function_words import function_words
 import pandas as pd
 import argparse
-from function_words import function_words
+
+columns = ['original text', 'fws only', 'numbered fws', 'number of fws']
 
 
 class LangDesc:
@@ -55,9 +57,9 @@ def chunk_europarl(max_words):
     fr_desc = LangDesc('fr')
 
     en_dataframe = pd.DataFrame(
-        columns=['original text', 'fws only', 'numbered fws', 'number of fws'])
+        columns=columns)
     fr_dataframe = pd.DataFrame(
-        columns=['original text', 'fws only', 'numbered fws', 'number of fws'])
+        columns=columns)
 
     with open('corpus/europarl-v7.EN-FR/europarl-v7.fr-en.dat', 'r') as datafile, \
             open('corpus/europarl-v7.EN-FR/europarl-v7.fr-en.en.aligned.tok', 'r') as tokfile:
@@ -84,9 +86,9 @@ def chunk_literature(max_words):
     fr_desc = LangDesc('fr')
 
     en_dataframe = pd.DataFrame(
-        columns=['original text', 'fws only', 'numbered fws', 'number of fws'])
+        columns=columns)
     fr_dataframe = pd.DataFrame(
-        columns=['original text', 'fws only', 'numbered fws', 'number of fws'])
+        columns=columns)
 
     with open('corpus/literature.EN-FR/literature.dat', 'r') as datafile:
         for dat_line in datafile:
