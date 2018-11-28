@@ -4,6 +4,7 @@ from keras.layers import Embedding, LSTM, Dense, Dropout
 from sklearn.model_selection import train_test_split
 from function_words import function_words
 import pandas as pd
+import numpy as np
 import argparse
 import sklearn
 import keras
@@ -58,11 +59,11 @@ def get_features(args):
 
 
 def create_model(input_length):
-    embedding_size = 32
+    embedding_size = 128
     model = Sequential()
     model.add(Embedding(len(function_words),
                         embedding_size, input_length=input_length))
-    model.add(LSTM(100, activation='tanh'))
+    model.add(LSTM(256, activation='sigmoid'))
     model.add(Dense(1, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy',
@@ -86,6 +87,12 @@ def lstm_train(args):
     model.fit(X_train, y_train, validation_data=(
         X_test, y_test), batch_size=32, epochs=10, verbose=1)
     scores = model.evaluate(X_test, y_test, verbose=0)
+    f = np.array(list(map(lambda x: x[0], model.predict(X_test))))
+    df = pd.DataFrame(columns=['predicted', 'actual'])
+    df['predicted'] = f
+    df['actual'] = y_test
+    df['diff'] = y_test - f
+
     print('Test accuracy:', scores[1])
 
 
