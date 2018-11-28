@@ -27,12 +27,12 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
 - Setup
 
   ```bash
-  virtualenv venv
-  source venv/bin/activate
   pip install spacy
   python -m spacy download en
   pip install -r requirements.txt
   ```
+
+### Classical ML method (SVM)
 
 - Get chunks & features of the corpus
 
@@ -53,27 +53,44 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
   python supervised_classifier.py <corpusname != europarl> cross # test between input corpus & europarl
   ```
 
+### LSTM
+
+- Get chunks of the corpus
+
+  ```bash
+  python words_to_numbers.py <corpusname or all>
+  ```
+
+- [lstm_classifier.py](./lstm_classifier.py)
+
+  ```bash
+  python lstm_classifier.py --corpus <corpusname=europarl> --max_words <max_words=500> --cross <cross corpus name>
+  # all three parameters are not necessary. I recommend you to leave max_words parameter empty.
+  ```
+
 ## 6. Results(TBU)
 
 - Number of Tokens / Sentences
 
-  | Data          | Sentences |    Tokens | Chunks |
-  | ------------- | --------: | --------: | -----: |
-  | Europarl - EN |   217,421 | 5,979,208 |   2964 |
-  | Europarl - FR |   130,051 | 4,037,457 |   1999 |
+  | Data            | Sentences |    Tokens | Chunks(SVM) | Chunks(LSTM) |
+  | --------------- | --------: | --------: | ----------: | -----------: |
+  | Europarl - EN   |   217,421 | 5,979,208 |        2964 |         5208 |
+  | Europarl - FR   |   130,051 | 4,037,457 |        1999 |         3531 |
+  | Literature - EN |   217,421 | 5,979,208 |         446 |          794 |
+  | Literature - FR |   130,051 | 4,037,457 |        1066 |         1785 |
 
-- Accuracy (SVM: C = 10^5)
+- Accuracy
 
-  | Corpus     | SVM | KMeans |  NN |
-  | ---------- | --: | -----: | --: |
-  | Europarl   | 95% |    TBU | TBU |
-  | Literature | 96% |    TBU | TBU |
+  | Corpus     | SVM | LSTM |
+  | ---------- | --: | ---: |
+  | Europarl   | 95% |  91% |
+  | Literature | 96% |  92% |
 
 - Cross Accuracy
 
-  | Corpus 1 | Corpus 2   | SVM | KMeans |  NN |
-  | -------- | ---------- | --: | -----: | --: |
-  | Europarl | Literature | 56% |    TBU | TBU |
+  | Corpus 1 | Corpus 2   | SVM | LSTM |
+  | -------- | ---------- | --: | ---: |
+  | Europarl | Literature | 56% |  54% |
 
 ## 7. References
 

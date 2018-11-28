@@ -32,10 +32,8 @@ def get_dataframes(corpus):
     return en_df, fr_df
 
 
-def get_features(args):
-    max_words = args.max_words
-
-    en_df, fr_df = get_dataframes(args.corpus)
+def get_features(corpus, max_words):
+    en_df, fr_df = get_dataframes(corpus)
 
     en_X = list(map(lambda x: list(map(int, x.split(' '))),
                     en_df['numbered fws']))
@@ -74,14 +72,30 @@ def create_model(input_length):
     return model
 
 
+def get_splitted_sets(args):
+    X, y = get_features(args.corpus, args.max_words)
+    if args.cross:
+        X_train, y_train = X, y
+        X_test, y_test = get_features(args.cross, args.max_words)
+        return X_train, X_test, y_train, y_test
+    else:
+        return train_test_split(
+            X, y, test_size=0.2, random_state=0)
+
+
 def lstm_train(args):
     if args.corpus not in ('europarl', 'literature'):
         print('incorrect corpus name')
         return
+    if args.cross and (args.cross not in ('europarl', 'literature')):
+        print('incorrect cross-corpus name')
+        return
+    if not args.cross:
+        print('\nevaluating %s corpus' % args.corpus)
+    else:
+        print('\nevaluating %s - %s cross domain' % (args.corpus, args.cross))
 
-    X, y = get_features(args)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=0)
+    X_train, X_test, y_train, y_test = get_splitted_sets(args)
 
     model = create_model(len(X_train[0]))
     model.fit(X_train, y_train, validation_data=(
@@ -102,6 +116,8 @@ if __name__ == '__main__':
         '--corpus', help='name of the corpus', default='europarl')
     parser.add_argument(
         '--max_words', help='number of the words to be included in one feature', type=int, default=500)
+    parser.add_argument(
+        '--cross', help='if you want cross-domain evaluation, type your corpus name')
     args = parser.parse_args()
 
     lstm_train(args)
