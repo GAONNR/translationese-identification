@@ -1,6 +1,8 @@
 from keras.preprocessing import sequence
 from keras import Sequential
 from keras.layers import Embedding, LSTM, Dense, Dropout
+from sklearn.model_selection import train_test_split
+from function_words import function_words
 import pandas as pd
 import argparse
 import sklearn
@@ -29,10 +31,7 @@ def get_dataframes(corpus):
     return en_df, fr_df
 
 
-def lstm_train(args):
-    if args.corpus not in ('europarl', 'literature'):
-        print('incorrect corpus name')
-        return
+def get_features(args):
     max_words = args.max_words
 
     en_df, fr_df = get_dataframes(args.corpus)
@@ -52,7 +51,42 @@ def lstm_train(args):
 
     mixed_Xydf = en_Xydf.append(fr_Xydf, ignore_index=True)
     mixed_Xydf = sklearn.utils.shuffle(mixed_Xydf).reset_index(drop=True)
-    print(mixed_Xydf)
+    X = mixed_Xydf.drop(columns=['y']).values
+    y = mixed_Xydf['y'].values
+
+    return X, y
+
+
+def create_model(input_length):
+    embedding_size = 32
+    model = Sequential()
+    model.add(Embedding(len(function_words),
+                        embedding_size, input_length=input_length))
+    model.add(LSTM(100, activation='tanh'))
+    model.add(Dense(1, activation='sigmoid'))
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+    model.summary()
+
+    return model
+
+
+def lstm_train(args):
+    if args.corpus not in ('europarl', 'literature'):
+        print('incorrect corpus name')
+        return
+
+    X, y = get_features(args)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=0)
+
+    model = create_model(len(X_train[0]))
+    model.fit(X_train, y_train, validation_data=(
+        X_test, y_test), batch_size=32, epochs=10, verbose=1)
+    scores = model.evaluate(X_test, y_test, verbose=0)
+    print('Test accuracy:', scores[1])
 
 
 if __name__ == '__main__':
