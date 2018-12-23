@@ -5,8 +5,8 @@ import sys
 import csv
 
 europarlInfo = {
-    'dat': 'corpus/europarl-v7.EN-FR/europarl-v7.fr-en.dat',
-    'tok': 'corpus/europarl-v7.EN-FR/europarl-v7.fr-en.en.aligned.tok'
+    'dat': 'corpus/europarl-v7.EN-DE/europarl-v7.de-en.dat',
+    'tok': 'corpus/europarl-v7.EN-DE/europarl-v7.de-en.en.aligned.tok'
 }
 
 featuresLimit = {
@@ -16,12 +16,13 @@ featuresLimit = {
 
 
 def chunkEuroparl(nlp):
+    print('chunkEuroparl')
     enLines = 0
     enToks = 0
     tmpEnChunk = ''
     tmpEnToks = 0
     tmpEnIdx = 0
-    fEnChunks = open('chunks/europarl/en.csv', 'w')
+    fEnChunks = open('chunks/europarl/en-1.csv', 'w')
     enWriter = csv.writer(fEnChunks)
 
     frLines = 0
@@ -29,14 +30,14 @@ def chunkEuroparl(nlp):
     tmpFrChunk = ''
     tmpFrToks = 0
     tmpFrIdx = 0
-    fFrChunks = open('chunks/europarl/fr.csv', 'w')
+    fFrChunks = open('chunks/europarl/de.csv', 'w')
     frWriter = csv.writer(fFrChunks)
 
     with open(europarlInfo['dat'], 'r') as corpusDat, \
             open(europarlInfo['tok'], 'r') as corpusTok:
         for datLine, tokLine in zip(corpusDat, corpusTok):
             if '\"EN\"' in datLine:
-                lineToks = nlp(tokLine)
+                lineToks = tokLine.strip().split(' ')
                 enLines += 1
                 enToks += len(lineToks)
 
@@ -53,7 +54,7 @@ def chunkEuroparl(nlp):
                         print('En chunk number %d has written' % tmpEnIdx)
 
             elif '\"FR\"' in datLine:
-                lineToks = nlp(tokLine)
+                lineToks = tokLine.strip().split(' ')
                 frLines += 1
                 frToks += len(lineToks)
 
@@ -67,15 +68,15 @@ def chunkEuroparl(nlp):
                     tmpFrIdx += 1
 
                     if tmpFrIdx % 100 == 0:
-                        print('Fr chunk number %d has written' % tmpFrIdx)
+                        print('De chunk number %d has written' % tmpFrIdx)
 
         enWriter.writerow([tmpEnIdx, tmpEnChunk, tmpEnToks])
         frWriter.writerow([tmpFrIdx, tmpFrChunk, tmpFrToks])
 
         print('Europarl', 'English Lines:', enLines)
         print('Europarl', 'English Tokens:', enToks)
-        print('Europarl', 'French Lines:', frLines)
-        print('Europarl', 'French Tokens:', frToks)
+        print('Europarl', 'German Lines:', frLines)
+        print('Europarl', 'German Tokens:', frToks)
 
     fEnChunks.close()
     fFrChunks.close()
@@ -83,12 +84,13 @@ def chunkEuroparl(nlp):
 
 
 def chunkLiterature(nlp):
+    print('chunkLiterature')
     enLines = 0
     enToks = 0
     tmpEnChunk = ''
     tmpEnToks = 0
     tmpEnIdx = 0
-    fEnChunks = open('chunks/literature/en.csv', 'w')
+    fEnChunks = open('chunks/literature/en-1.csv', 'w')
     enWriter = csv.writer(fEnChunks)
 
     frLines = 0
@@ -96,19 +98,19 @@ def chunkLiterature(nlp):
     tmpFrChunk = ''
     tmpFrToks = 0
     tmpFrIdx = 0
-    fFrChunks = open('chunks/literature/fr.csv', 'w')
+    fFrChunks = open('chunks/literature/de.csv', 'w')
     frWriter = csv.writer(fFrChunks)
 
-    with open('corpus/literature.EN-FR/literature.dat', 'r') as fLiteratureDat:
+    with open('corpus/literature.EN-DE/literature.dat', 'r') as fLiteratureDat:
         for datLine in fLiteratureDat:
             if len(datLine.split(' ')) < 2:
                 continue
             isTranslated, title = datLine.split(' ')
             if (isTranslated == 'S' and '.en.' in title):
                 title = title.strip()
-                with open('corpus/literature.EN-FR/books/%s' % title) as book:
+                with open('corpus/literature.EN-DE/books/%s' % title) as book:
                     for tokLine in book:
-                        lineToks = nlp(tokLine)
+                        lineToks = tokLine.strip().split(' ')
                         enLines += 1
                         enToks += len(lineToks)
 
@@ -127,9 +129,9 @@ def chunkLiterature(nlp):
                                       tmpEnIdx)
             elif (isTranslated == 'T' and '.en.' in title):
                 title = title.strip()
-                with open('corpus/literature.EN-FR/books/%s' % title) as book:
+                with open('corpus/literature.EN-DE/books/%s' % title) as book:
                     for tokLine in book:
-                        lineToks = nlp(tokLine)
+                        lineToks = tokLine.strip().split(' ')
                         frLines += 1
                         frToks += len(lineToks)
 
@@ -144,15 +146,15 @@ def chunkLiterature(nlp):
                             tmpFrIdx += 1
 
                             if tmpFrIdx % 100 == 0:
-                                print('Fr chunk number %d has written' %
+                                print('De chunk number %d has written' %
                                       tmpFrIdx)
         enWriter.writerow([tmpEnIdx, tmpEnChunk, tmpEnToks])
         frWriter.writerow([tmpFrIdx, tmpFrChunk, tmpFrToks])
 
     print('Literature', 'English Lines:', enLines)
     print('Literature', 'English Tokens:', enToks)
-    print('Literature', 'French Lines:', frLines)
-    print('Literature', 'French Tokens:', frToks)
+    print('Literature', 'German Lines:', frLines)
+    print('Literature', 'German Tokens:', frToks)
 
     fEnChunks.close()
     fFrChunks.close()
@@ -171,15 +173,15 @@ def csvToTotalChunks(totalChunks, csvReader, val, num):
 
 
 def getStopWordsStat(nlp, chunk, chunkNum):
-    tokenizedChunk = nlp(chunk)
+    tokenizedChunk = chunk.strip().split(' ')
     stopwordsStat = dict()
 
     for token in tokenizedChunk:
-        if token.text in functionWords:
-            if token.text in stopwordsStat:
-                stopwordsStat[token.text] += 1
+        if token in functionWords:
+            if token in stopwordsStat:
+                stopwordsStat[token] += 1
             else:
-                stopwordsStat[token.text] = 1
+                stopwordsStat[token] = 1
 
     for key in stopwordsStat.keys():
         stopwordsStat[key] /= int(chunkNum)
@@ -188,8 +190,8 @@ def getStopWordsStat(nlp, chunk, chunkNum):
 
 
 def getFeatures(nlp, corpusName):
-    fEnChunks = open('chunks/%s/en.csv' % corpusName, 'r')
-    fFrChunks = open('chunks/%s/fr.csv' % corpusName, 'r')
+    fEnChunks = open('chunks/%s/en-1.csv' % corpusName, 'r')
+    fFrChunks = open('chunks/%s/de.csv' % corpusName, 'r')
 
     enReader = csv.reader(fEnChunks)
     frReader = csv.reader(fFrChunks)
@@ -212,7 +214,7 @@ def getFeatures(nlp, corpusName):
 
     print('Marking Function Words Complete')
 
-    X = [[0 for _ in range(len(functionWords))]
+    X = [[0 for _ in range(len(functionWords.keys()))]
          for _ in range(len(totalChunks))]
     y = [0 for _ in range(len(totalChunks))]
 
@@ -222,12 +224,12 @@ def getFeatures(nlp, corpusName):
         y[i] = 1 if stopwordsStats[i][1] else 0
         for j in range(len(functionWords)):
             stopwordsStat = stopwordsStats[i][0]
-            if functionWords[j] in stopwordsStat:
-                X[i][j] = stopwordsStat[functionWords[j]]
+            if list(functionWords.keys())[j] in stopwordsStat:
+                X[i][j] = stopwordsStat[list(functionWords.keys())[j]]
 
-    fFeatures = open('features/%s/features.csv' % corpusName, 'w')
+    fFeatures = open('features/%s/features-1.csv' % corpusName, 'w')
     featureWriter = csv.writer(fFeatures)
-    featureWriter.writerow(functionWords + ['val'])
+    featureWriter.writerow(list(functionWords.keys()) + ['val'])
     for i in range(len(totalChunks)):
         featureWriter.writerow(X[i] + [y[i]])
     fFeatures.close()
@@ -236,7 +238,7 @@ def getFeatures(nlp, corpusName):
 
 
 def getXy(corpusName):
-    fFeatures = open('features/%s/features.csv' % corpusName, 'r')
+    fFeatures = open('features/%s/features-1.csv' % corpusName, 'r')
     featuresReader = csv.reader(fFeatures)
 
     column = True

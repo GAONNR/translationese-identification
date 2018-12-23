@@ -28,7 +28,7 @@ if __name__ == '__main__':
             X, y, test_size=0.2)
         trainSVM(X_train, X_test, y_train, y_test)
 
-    if 'literature' in sys.argv:
+    elif 'literature' in sys.argv:
         if 'cross' in sys.argv:
             X_train, y_train = getXy('europarl')
             X_test, y_test = getXy('literature')

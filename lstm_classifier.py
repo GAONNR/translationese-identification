@@ -22,18 +22,20 @@ import keras
 columns = ['original text', 'fws only', 'numbered fws', 'number of fws']
 
 
-def get_dataframes(corpus):
-    en_df = pd.read_csv('chunks/%s/en_lstm.csv' % corpus)
+def get_dataframes(corpus, language):
+    en_df = pd.read_csv('chunks/%s/en-%s/en_lstm.csv' %
+                        (corpus, language))
     en_df = en_df.drop(columns=en_df.columns[0])
 
-    fr_df = pd.read_csv('chunks/%s/fr_lstm.csv' % corpus)
+    fr_df = pd.read_csv('chunks/%s/en-%s/%s_lstm.csv' %
+                        (corpus, language, language))
     fr_df = fr_df.drop(columns=fr_df.columns[0])
 
     return en_df, fr_df
 
 
-def get_features(corpus, max_words):
-    en_df, fr_df = get_dataframes(corpus)
+def get_features(corpus, max_words, language):
+    en_df, fr_df = get_dataframes(corpus, language)
 
     en_X = list(map(lambda x: list(map(int, x.split(' '))),
                     en_df['numbered fws']))
@@ -72,11 +74,42 @@ def create_model(input_length):
     return model
 
 
+def get_language_cross_features(args):
+    en_df, fr_df = get_dataframes(args.corpus, 'fr')
+    en_df, de_df = get_dataframes(args.corpus, 'de')
+    print('training language cross')
+
+    fr_X = list(map(lambda x: list(map(int, x.split(' '))),
+                    fr_df['numbered fws']))
+    fr_X = sequence.pad_sequences(fr_X, args.max_words, truncating='post')
+    de_X = list(map(lambda x: list(map(int, x.split(' '))),
+                    de_df['numbered fws']))
+    de_X = sequence.pad_sequences(de_X, args.max_words, truncating='post')
+
+    fr_Xydf = pd.DataFrame(data=fr_X, columns=['X%d' % i for i in range(500)])
+    fr_Xydf['y'] = False
+    de_Xydf = pd.DataFrame(data=de_X, columns=['X%d' % i for i in range(500)])
+    de_Xydf['y'] = True
+
+    mixed_Xydf = fr_Xydf.append(de_Xydf, ignore_index=True)
+    mixed_Xydf = sklearn.utils.shuffle(mixed_Xydf).reset_index(drop=True)
+    X = mixed_Xydf.drop(columns=['y']).values
+    y = mixed_Xydf['y'].values
+
+    return X, y
+
+
 def get_splitted_sets(args):
-    X, y = get_features(args.corpus, args.max_words)
+    if args.language_cross:
+        X, y = get_language_cross_features(args)
+        return train_test_split(
+            X, y, test_size=0.2, random_state=0)
+
+    X, y = get_features(args.corpus, args.max_words, args.language)
     if args.cross:
         X_train, y_train = X, y
-        X_test, y_test = get_features(args.cross, args.max_words)
+        X_test, y_test = get_features(
+            args.cross, args.max_words, args.language)
         return X_train, X_test, y_train, y_test
     else:
         return train_test_split(
@@ -89,6 +122,9 @@ def lstm_train(args):
         return
     if args.cross and (args.cross not in ('europarl', 'literature')):
         print('incorrect cross-corpus name')
+        return
+    if args.language not in ('fr', 'de'):
+        print('incorrect language name')
         return
     if not args.cross:
         print('\nevaluating %s corpus' % args.corpus)
@@ -118,6 +154,10 @@ if __name__ == '__main__':
         '--max_words', help='number of the words to be included in one feature', type=int, default=500)
     parser.add_argument(
         '--cross', help='if you want cross-domain evaluation, type your corpus name')
+    parser.add_argument(
+        '--language', help='fr or de', default='fr')
+    parser.add_argument(
+        '--language_cross', help='if you want to distinguish fr/de translationese', default=False)
     args = parser.parse_args()
 
     lstm_train(args)

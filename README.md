@@ -72,25 +72,39 @@ Ella Rabinovich, Shuly Wintner의 2015년 논문 등에 따르면 SVM 등의 Sup
 
 - Number of Tokens / Sentences
 
-  | Data            | Sentences |    Tokens | Chunks(SVM) | Chunks(LSTM) |
-  | --------------- | --------: | --------: | ----------: | -----------: |
-  | Europarl - EN   |   217,421 | 5,979,208 |        2964 |         5208 |
-  | Europarl - FR   |   130,051 | 4,037,457 |        1999 |         3531 |
-  | Literature - EN |   217,421 | 5,979,208 |         446 |          794 |
-  | Literature - FR |   130,051 | 4,037,457 |        1066 |         1785 |
+  | Data                  | Sentences |    Tokens | Chunks(SVM) | Chunks(LSTM) |
+  | --------------------- | --------: | --------: | ----------: | -----------: |
+  | Europarl:EN-FR - EN   |   217,421 | 5,979,208 |        2964 |         5208 |
+  | Europarl:EN-FR - FR   |   130,051 | 4,037,457 |        1999 |         3531 |
+  | Europarl:EN-DE - EN   |   225,164 | 6,320,132 |        2990 |         5522 |
+  | Europarl:EN-DE - DE   |   132,907 | 4,199,458 |        1998 |         4311 |
+  | Literature:EN-FR - EN |    35,289 |   901,627 |         446 |          794 |
+  | Literature:EN-FR - FR |    98,201 | 2,148,053 |        1066 |         1785 |
+  | Literature:EN-DE - EN |    45,773 | 1,406,748 |         695 |         1235 |
+  | Literature:EN-DE - DE |    48,052 | 1,447,839 |         716 |         1335 |
 
 - Accuracy
 
-  | Corpus     | SVM | LSTM |
-  | ---------- | --: | ---: |
-  | Europarl   | 95% |  91% |
-  | Literature | 96% |  92% |
+  | Corpus        | SVM | LSTM |
+  | ------------- | --: | ---: |
+  | Europarl-FR   | 95% |  92% |
+  | Europarl-DE   | 98% |  91% |
+  | Literature-FR | 96% |  86% |
+  | Literature-DE | 95% |  93% |
 
 - Cross Accuracy
 
-  | Corpus 1 | Corpus 2   | SVM | LSTM |
-  | -------- | ---------- | --: | ---: |
-  | Europarl | Literature | 56% |  54% |
+  | Corpus 1    | Corpus 2      | SVM | LSTM |
+  | ----------- | ------------- | --: | ---: |
+  | Europarl-FR | Literature-FR | 56% |  54% |
+  | Europarl-DE | Literature-DE | 74% |  56% |
+
+- Cross-Language Accuracy
+
+  | Language 1    | Language 2    | SVM | LSTM |
+  | ------------- | ------------- | --: | ---: |
+  | Europarl-FR   | Europarl-DE   | TBU |  87% |
+  | Literature-FR | Literature-DE | TBU |  91% |
 
 ## 7. References
 

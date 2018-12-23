@@ -52,52 +52,53 @@ class LangDesc:
                   (self.line_idx, self.name))
 
 
-def chunk_europarl(max_words):
+def chunk_europarl(max_words, language):
     en_desc = LangDesc('en')
-    fr_desc = LangDesc('fr')
+    fr_desc = LangDesc(language)
 
     en_dataframe = pd.DataFrame(
         columns=columns)
     fr_dataframe = pd.DataFrame(
         columns=columns)
 
-    with open('corpus/europarl-v7.EN-FR/europarl-v7.fr-en.dat', 'r') as datafile, \
-            open('corpus/europarl-v7.EN-FR/europarl-v7.fr-en.en.aligned.tok', 'r') as tokfile:
+    with open('corpus/europarl-v7.EN-%s/europarl-v7.%s-en.dat' % (language.upper(), language.upper()), 'r') as datafile, \
+            open('corpus/europarl-v7.EN-%s/europarl-v7.%s-en.en.aligned.tok' % (language.upper(), language.upper()), 'r') as tokfile:
         for dat_line, token_line in zip(datafile, tokfile):
             if '\"EN\"' in dat_line:
                 en_desc.process(token_line)
                 if en_desc.is_full(max_words):
                     en_dataframe.loc[en_desc.line_idx] = en_desc.get_row()
                     en_desc.clear()
-            elif '\"FR\"' in dat_line:
+            elif '\"%s\"' % language.upper() in dat_line:
                 fr_desc.process(token_line)
                 if fr_desc.is_full(max_words):
                     fr_dataframe.loc[fr_desc.line_idx] = fr_desc.get_row()
                     fr_desc.clear()
 
-    en_dataframe.to_csv('chunks/europarl/en_lstm.csv')
-    fr_dataframe.to_csv('chunks/europarl/fr_lstm.csv')
+    en_dataframe.to_csv('chunks/europarl/en-%s/en_lstm.csv' % language)
+    fr_dataframe.to_csv('chunks/europarl/en-%s/%s_lstm.csv' %
+                        (language, language))
 
     return 'chunks/europarl/'
 
 
-def chunk_literature(max_words):
+def chunk_literature(max_words, language):
     en_desc = LangDesc('en')
-    fr_desc = LangDesc('fr')
+    fr_desc = LangDesc(language)
 
     en_dataframe = pd.DataFrame(
         columns=columns)
     fr_dataframe = pd.DataFrame(
         columns=columns)
 
-    with open('corpus/literature.EN-FR/literature.dat', 'r') as datafile:
+    with open('corpus/literature.EN-%s/literature.dat' % language.upper(), 'r') as datafile:
         for dat_line in datafile:
             if len(dat_line.split(' ')) < 2:
                 continue
             is_translated, title = dat_line.split(' ')
             if is_translated == 'S' and '.en.' in title:
                 title = title.strip()
-                with open('corpus/literature.EN-FR/books/%s' % title) as book:
+                with open('corpus/literature.EN-%s/books/%s' % (language.upper(), title)) as book:
                     for token_line in book:
                         en_desc.process(token_line)
                         if en_desc.is_full(max_words):
@@ -106,7 +107,7 @@ def chunk_literature(max_words):
                             en_desc.clear()
             elif is_translated == 'T' and '.en.' in title:
                 title = title.strip()
-                with open('corpus/literature.EN-FR/books/%s' % title) as book:
+                with open('corpus/literature.EN-%s/books/%s' % (language.upper(), title)) as book:
                     for token_line in book:
                         fr_desc.process(token_line)
                         if fr_desc.is_full(max_words):
@@ -114,30 +115,34 @@ def chunk_literature(max_words):
                             )
                             fr_desc.clear()
 
-    en_dataframe.to_csv('chunks/literature/en_lstm.csv')
-    fr_dataframe.to_csv('chunks/literature/fr_lstm.csv')
+    en_dataframe.to_csv('chunks/literature/en-%s/en_lstm.csv' % language)
+    fr_dataframe.to_csv('chunks/literature/en-%s/%s_lstm.csv' %
+                        (language, language))
 
     return 'chunks/literature'
 
 
 def get_features(args):
-    chunk_path = ''
     print(args)
+    if args.language not in ('fr', 'de'):
+        print('incorrect language name')
+        return
+
     if args.corpus == 'europarl':
         print('\nparsing europarl corpus')
         print('=== === === === === ===')
-        chunk_path = chunk_europarl(args.max_words)
+        chunk_europarl(args.max_words, args.language)
     elif args.corpus == 'literature':
         print('\nparsing literature corpus')
         print('=== === === === === ===')
-        chunk_path = chunk_literature(args.max_words)
+        chunk_literature(args.max_words, args.language)
     elif args.corpus == 'all':
         print('\nparsing europarl corpus')
         print('=== === === === === ===')
-        chunk_path = chunk_europarl(args.max_words)
+        chunk_europarl(args.max_words, args.language)
         print('\nparsing literature corpus')
         print('=== === === === === ===')
-        chunk_path = chunk_literature(args.max_words)
+        chunk_literature(args.max_words, args.language)
     else:
         print('no proper corpus')
         return
@@ -149,6 +154,8 @@ if __name__ == '__main__':
         '--corpus', help='name of the corpus', default='europarl')
     parser.add_argument(
         '--max_words', help='number of the words to be included in one feature', type=int, default=500)
+    parser.add_argument(
+        '--language', help='fr or de', default='fr')
     args = parser.parse_args()
 
     get_features(args)
